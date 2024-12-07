@@ -1,0 +1,46 @@
+#+title: ChadWM (TRONG fork)
+*** Requirements
+- dash (shell)
+- imlib2 
+- xsetroot package (status2d uses this to add colors on dwmbar)
+- JetbrainsMono Nerd Font or any nerd font but dont forget to set it in config.def.h
+- Make sure to setup your terminal's theme accordingly do chadwm's theme such as nord, onedark etc...
+**** Other requirements
+- picom
+- feh
+- acpi
+- rofi
+
+** Install
+
+#+begin_src sh
+git clone https://github.com/siduck/chadwm --depth 1  ~/.config/chadwm
+cd ~/.config/chadwm/
+mv eww ~/.config
+cd chadwm
+sudo make install
+#+end_src
+(Note: chmod +x all of the scripts)
+
+** Original Patches
+- barpadding 
+- bottomstack
+- cfacts
+- dragmfact 
+- dragcfact (took from bakkeby's build)
+- fibonacii
+- gaplessgrid
+- horizgrid
+- movestack 
+- vanity gaps
+- colorful tags
+- statuspadding 
+- status2d
+- underline tags
+- notitle
+- winicon
+- preserveonrestart
+- shiftview
+
+*** Extra Patches
+- attatchbottom
