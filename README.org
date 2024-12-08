@@ -3,16 +3,16 @@
 - dash (shell)
 - imlib2 
 - xsetroot package (status2d uses this to add colors on dwmbar)
-- JetbrainsMono Nerd Font or any nerd font but dont forget to set it in config.def.h
-- Make sure to setup your terminal's theme accordingly do chadwm's theme such as nord, onedark etc...
+- ComicMono Font
+- Alacritty
+# WezTerm?
 **** Other requirements
-- picom
+- picom-yaoccc
 - feh
 - acpi
-- rofi
+- dmenu
 
 ** Install
-
 #+begin_src sh
 git clone https://github.com/siduck/chadwm --depth 1  ~/.config/chadwm
 cd ~/.config/chadwm/
@@ -45,3 +45,8 @@ sudo make install
 *** Extra Patches
 - attatchbottom
 - dwm-focusonclick
+
+***** TODO: Add these patches
+- dwm-fakefullscreen
+- resizecorners
+- steam
