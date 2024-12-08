@@ -44,3 +44,4 @@ sudo make install
 
 *** Extra Patches
 - attatchbottom
+- dwm-focusonclick
