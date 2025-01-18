@@ -7,18 +7,16 @@
 - Alacritty
 # WezTerm?
 **** Other requirements
-- picom-yaoccc
+- picom
 - feh
 - acpi
 - dmenu
 
 ** Install
 #+begin_src sh
-git clone https://github.com/siduck/chadwm --depth 1  ~/.config/chadwm
-cd ~/.config/chadwm/
-mv eww ~/.config
-cd chadwm
-sudo make install
+git clone https://github.com/thelinuxpirate/ChadWM ~/.config/chadwm
+cd ~/.config/chadwm/chadwm
+sudo make clean install
 #+end_src
 (Note: chmod +x all of the scripts)
 
@@ -43,10 +41,10 @@ sudo make install
 - shiftview
 
 *** Extra Patches
-- attatchbottom
+- attatchbottom 
+- dwm-fakefullscreen (customized version)
 - dwm-focusonclick
-
-***** TODO: Add these patches
-- dwm-fakefullscreen
 - resizecorners
 - steam
+- torus
+- zoomswap
