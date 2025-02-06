@@ -4,9 +4,12 @@
 custom-fakefullscreen (DONE)
 resizecorners (DONE)
 steam (DONE)
-keychords
-scratchpads
+zoomswap (DONE)
+keychords (Next)
+scratchpads (After)
 torus (DONE)
+NOTE: Zoom function is literally broken, dont use it, itll brick DWM &
+      I have no idea why
 */
 
 #include <X11/XF86keysym.h>
@@ -22,7 +25,7 @@ static const unsigned int ulinevoffset  = 0; /* how far above the bottom of the 
 static const int ulineall               = 0; /* 1 to show underline on all tags, 0 for just the active ones */
 
 static char *tags[]           = {
-    "", "", "", "",
+    "", "", "", "",
     "󰋶", "󰸳", "", "",
     "", "󰇞", "", ""
  };
@@ -41,7 +44,7 @@ static const char *colors[][3]      = {
     [TabSel]           = { blue,    gray2,  black },
     [TabNorm]          = { gray3,   black,  black },
     [SchemeTag]        = { gray3,   black,  black }, // Tag border
-    [SchemeTag1]       = { pink,    black,  black },
+    [SchemeTag1]       = { green,   black,  black }, // new color for NeoVim?
     [SchemeTag2]       = { orange,  black,  black },
     [SchemeTag3]       = { green,   black,  black },
     [SchemeTag4]       = { blue,    black,  black },
@@ -59,10 +62,11 @@ static const char *colors[][3]      = {
     [SchemeBtnClose]   = { red,     black,  black },
 };
 
-static const char *fonts[] = { "Comic Mono:style:medium:size=12",
-                               "Iosevka:style:medium:size=12",
-                               "JetBrainsMono Nerd Font Mono:style:medium:size=19"
-                             };
+static const char *fonts[] = { 
+    "Comic Mono:style:medium:size=12",
+    "Iosevka:style:medium:size=12",
+    "JetBrainsMono Nerd Font Mono:style:medium:size=19"
+};
 
 
 static const unsigned int borderpx  = 2;        /* Window border pixel*/
@@ -122,9 +126,10 @@ static const Launcher launchers[] = {
     /* command     name to display */
     { dmenucmd,         "󰣇" },
 };
-static const char* termcmd[]   = { "alacritty", NULL };
-static const char* editorcmd[] = { "emacsclient", "-c", NULL };
-static const char* browsrcmd[] = { "zen-browser", NULL };
+static const char* termcmd[]     = { "alacritty", NULL };
+static const char* termeditcmd[] = {"alacritty", "-e", "nvim", NULL };
+static const char* editorcmd[]   = { "neovide", NULL };
+static const char* browsrcmd[]   = { "zen-browser", NULL };
 
 /* Window Management */
 static const float mfact        = 0.60; /* factor of master area size [0.05..0.95] */
@@ -132,7 +137,7 @@ static const int nmaster        = 1;    /* number of clients in master area */
 static const int resizehints    = 0;    /* 1 means respect size hints in tiled resizals */
 
 static const int focusonwheel             = 0;
-static const int torusenabled             = 1; // Mouse wraps around the screen
+static int torusenabled                   = 1; // Mouse wraps around the screen (can be toggled)
 static const int wormholedelta            = 1; // How close to the edge before it wormholes
 static const int lockfullscreen           = 0; /* 1 = Force focus on fullscreened window */
 static const int new_window_attach_on_end = 1; /* 1 = Window attach on the end; 0 = Window attach front*/
@@ -192,7 +197,9 @@ static const Key keys[] = {
     { MODKEY,                       XK_g,         spawn,            SPWN("gimp") },
 
     { MODKEY|SHFTKEY,               XK_b,         spawn,            { .v = browsrcmd } },
+    { MODKEY|SHFTKEY,               XK_n,         spawn,            { .v = termeditcmd } },
     { MODKEY|SHFTKEY,               XK_e,         spawn,            SPWN("emacsclient -c") },
+    { MODKEY|SHFTKEY,               XK_t,         spawn,            SPWN("nemo") },
     { MODKEY|SHFTKEY,               XK_d,         spawn,            SPWN("discord") },
     { MODKEY|SHFTKEY,               XK_s,         spawn,            SPWN("steam") },
     { MODKEY|SHFTKEY,               XK_m,         spawn,            SPWN("./System/Applications/Slippi/Slippi-Launcher.AppImage") },
@@ -208,15 +215,16 @@ static const Key keys[] = {
 
     { MODKEY,                       XK_f,         togglefullscr,    {0} },
     { MODKEY,                       XK_b,         togglebar,        {0} },
-    { MODKEY|CTRLKEY,               XK_g,         togglegaps,       {0} },
     { MODKEY|SHFTKEY,               XK_space,     togglefloating,   {0} },
     { MODKEY|SHFTKEY,               XK_f,         togglefakefullscr,  {0} },
+    { MODKEY|CTRLKEY,               XK_g,         togglegaps,       {0} },
+    { MODKEY|CTRLKEY|SHFTKEY,       XK_t,         toggletorus,      {0} },
 
     { MODKEY,                       XK_j,          focusstack,      {.i = +1 } },
     { MODKEY,                       XK_k,          focusstack,      {.i = -1 } },
     { MODKEY,                       XK_i,          incnmaster,      {.i = +1 } },
     { MODKEY,                       XK_o,          incnmaster,      {.i = -1 } },
-    { MODKEY|SHFTKEY,               XK_Return,     zoom,            { 0 } }, // TODO Add swap with Master patch
+    //{ MODKEY|SHFTKEY,               XK_Return,     zoom,            { 0 } }, // BROKEN
 
     // Change Window Sizing (M = Horizontal; C = Vertical)
     { MODKEY,                       XK_h,          setmfact,        {.f = -0.05} },
@@ -233,7 +241,7 @@ static const Key keys[] = {
     // Layouts
     { MODKEY|CTRLKEY,               XK_r,          setlayout,       {.v = &layouts[0]} },
     { MODKEY|CTRLKEY,               XK_t,          setlayout,       {.v = &layouts[1]} },
-    { MODKEY|SHFTKEY|CTRLKEY,       XK_y,          setlayout,       {.v = &layouts[2]} },
+    { MODKEY|CTRLKEY,               XK_y,          setlayout,       {.v = &layouts[2]} },
     { MODKEY|CTRLKEY,               XK_u,          setlayout,       {.v = &layouts[3]} },
     { MODKEY|CTRLKEY,               XK_comma,      cyclelayout,     {.i = -1 } },
     { MODKEY|CTRLKEY,               XK_period,     cyclelayout,     {.i = +1 } },
