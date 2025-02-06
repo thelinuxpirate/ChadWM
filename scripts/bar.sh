@@ -34,8 +34,8 @@ mem() {
 
 wlan() {
   case "$(cat /sys/class/net/wl*/operstate 2>/dev/null)" in
-  up) printf "^c$black^ ^b$orange^ 󰤨 ^d^%s" " ^c$orange^Connected" ;;
-  down) printf "^c$black^ ^b$red^ 󰤭 ^d^%s" " ^c$red^Disconnected" ;;
+  up) printf "^c$black^ ^b$orange^ 󰤨 ^d^%s" "^c$white^^b$grey^ Connected" ;;
+  down) printf "^c$black^ ^b$red^ 󰤭 ^d^%s" "^c$grey^^b$grey^ Disconnected" ;;
   esac
 }
 
