@@ -1,0 +1,48 @@
+dmenu | dynamic menu
+====================
+Custom Patched Version of:
+Dynamic Menu
+
+
+Requirements
+------------
+Xlib Header Files.
+
+
+Installation
+------------
+# make clean install
+
+
+Running dmenu
+-------------
+Already integrated with Sleepy-DWM
+
+List of Patches
+-------------
+Border-Patch
+CaretWidth-Patch
+Center-Patch
+CaseInsensitive-Patch
+Ctrl-V-Paste-Patch
+Dynamic-Options-Patch
+FuzzyHighlight-Patch
+FuzzyMatch-Patch
+FzfExpect-Patch
+Grid-Patch
+GridNav-Patch
+Highlight-Patch
+InitialText-Patch
+LineHeight-Patch
+Managed-Patch
+MoreColor-Patch
+MouseSupport-Patch
+MultiSelect-Patch
+NoSort-Patch
+Numbers-Patch
+PreSelectOpt-Patch
+RestrictReturn-Patch
+Scroll-Patch
+Symbols-Patch
+WMType-Patch
+XResources-Patch
