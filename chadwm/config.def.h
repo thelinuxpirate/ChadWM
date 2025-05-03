@@ -25,7 +25,7 @@ static const unsigned int ulinevoffset  = 0; /* how far above the bottom of the 
 static const int ulineall               = 0; /* 1 to show underline on all tags, 0 for just the active ones */
 
 static char *tags[]           = {
-    "", "", "", "",
+    "", "", "", "",
     "󰋶", "󰸳", "", "",
     "", "󰇞", "", ""
  };
@@ -44,7 +44,7 @@ static const char *colors[][3]      = {
     [TabSel]           = { blue,    gray2,  black },
     [TabNorm]          = { gray3,   black,  black },
     [SchemeTag]        = { gray3,   black,  black }, // Tag border
-    [SchemeTag1]       = { green,   black,  black }, // new color for NeoVim?
+    [SchemeTag1]       = { pink,    black,  black },
     [SchemeTag2]       = { orange,  black,  black },
     [SchemeTag3]       = { green,   black,  black },
     [SchemeTag4]       = { blue,    black,  black },
@@ -114,7 +114,8 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char dmenufont[]            = "Comic Mono:size=12";
 static const char dmenucol[]             = "10";
 static const char dmenugrid[]            = "5";
-static const char* dmenucmd[] = {
+static const char *dmenucmd[] = {
+  "/usr/bin/bash", "-c",
   "dmenu_run",
   "-m", dmenumon,
   "-fn", dmenufont,
@@ -122,14 +123,15 @@ static const char* dmenucmd[] = {
   "-g", dmenugrid,
   NULL
 };
+static const char *roficmd[] = { "rofi", "-show", "drun", NULL };
 static const Launcher launchers[] = {
     /* command     name to display */
-    { dmenucmd,         "󰣇" },
+    { roficmd,         "󰣇" },
 };
-static const char* termcmd[]     = { "alacritty", NULL };
-static const char* termeditcmd[] = {"alacritty", "-e", "nvim", NULL };
-static const char* editorcmd[]   = { "neovide", NULL };
-static const char* browsrcmd[]   = { "zen-browser", NULL };
+static const char* termcmd[]     = { "wezterm", NULL };
+static const char* termeditcmd[] = { "wezterm", "-e", "nvim", NULL };
+static const char* editorcmd[]   = { "emacs", NULL };
+static const char* browsrcmd[]   = { "floorp", NULL };
 
 /* Window Management */
 static const float mfact        = 0.60; /* factor of master area size [0.05..0.95] */
@@ -158,7 +160,6 @@ static const Rule rules[] = {
      */
     /* class      instance    title       tags mask     iscentered   isfloating   monitor */
     { "Gimp",     NULL,       NULL,       0,            0,           1,           -1 },
-    { "Firefox",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
     { "Steam",    NULL,       NULL,       1,            0,           1,           -1 },
 };
 
@@ -191,7 +192,7 @@ static const Key keys[] = {
     // Spawners
     { MODKEY,                       XK_Return,    spawn,            { .v = termcmd } },
     { MODKEY,                       XK_e,         spawn,            { .v = editorcmd } },
-    { MODKEY,                       XK_space,     spawn,            { .v = dmenucmd } },
+    { MODKEY,                       XK_space,     spawn,            { .v = roficmd } },
     { MODKEY,                       XK_s,         spawn,            SPWN("spotify-launcher") },
     { MODKEY,                       XK_p,         spawn,            SPWN("pavucontrol") },
     { MODKEY,                       XK_g,         spawn,            SPWN("gimp") },
@@ -224,7 +225,6 @@ static const Key keys[] = {
     { MODKEY,                       XK_k,          focusstack,      {.i = -1 } },
     { MODKEY,                       XK_i,          incnmaster,      {.i = +1 } },
     { MODKEY,                       XK_o,          incnmaster,      {.i = -1 } },
-    //{ MODKEY|SHFTKEY,               XK_Return,     zoom,            { 0 } }, // BROKEN
 
     // Change Window Sizing (M = Horizontal; C = Vertical)
     { MODKEY,                       XK_h,          setmfact,        {.f = -0.05} },
