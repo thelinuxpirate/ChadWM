@@ -11,7 +11,7 @@ in
   };
 
   config = {
-    environment.systemPackages = lib.optionals config.sleepy.enableDmenu [
+    environment.systemPackages = lib.optionals config.chadwm.enableDmenu [
       dmenu
     ];
   };
