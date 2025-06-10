@@ -11,6 +11,7 @@ let
       nativeBuildInputs = [
         nixpkgs.patchelf
         nixpkgs.autoPatchelfHook
+        nixpkgs.pkg-config
       ];
 
       buildInputs = [
@@ -22,12 +23,23 @@ let
         nixpkgs.alsa-lib
       ];
 
+      patchPhase = ''
+        substituteInPlace config.mk \
+          --replace "-I/usr/X11R6/include" "" \
+          --replace "-I/usr/include/freetype2" "" \
+          --replace "-march=native" ""
+
+        substituteInPlace Makefile \
+          --replace "CFLAGS =" "CFLAGS += \$(shell pkg-config --cflags x11 xft xinerama xi)\nCFLAGS +=" \
+          --replace "LDFLAGS =" "LDFLAGS += \$(shell pkg-config --libs x11 xft xinerama xi)\nLDFLAGS +="
+      '';
+
       installPhase = ''
         make PREFIX=$out install
       '';
 
       meta = with nixpkgs.lib; {
-        description = "${app} builds ChadWM";
+        description = "Builds ${app}";
         license = licenses.gpl3Plus;
         platforms = platforms.unix;
       };
