@@ -9,29 +9,31 @@ let
       src = ./${app};
 
       nativeBuildInputs = [
+        nixpkgs.pkg-config
         nixpkgs.patchelf
         nixpkgs.autoPatchelfHook
-        nixpkgs.pkg-config
       ];
 
       buildInputs = [
         nixpkgs.xorg.libX11
+        nixpkgs.xorg.libXinerama
         nixpkgs.xorg.libXft
         nixpkgs.xorg.libXi
-        nixpkgs.xorg.libXinerama
-        nixpkgs.xorg.xrdb
-        nixpkgs.alsa-lib
+        nixpkgs.fontconfig
+        nixpkgs.imlib2
+        nixpkgs.libXrender
       ];
 
       patchPhase = ''
         substituteInPlace config.mk \
-          --replace "-I/usr/X11R6/include" "" \
-          --replace "-I/usr/include/freetype2" "" \
-          --replace "-march=native" ""
-
-        substituteInPlace Makefile \
-          --replace "CFLAGS =" "CFLAGS += \$(shell pkg-config --cflags x11 xft xinerama xi)\nCFLAGS +=" \
-          --replace "LDFLAGS =" "LDFLAGS += \$(shell pkg-config --libs x11 xft xinerama xi)\nLDFLAGS +="
+          --replace '/usr/X11R6/include' "" \
+          --replace '/usr/X11R6/lib' "" \
+          --replace '/usr/include/freetype2' "" \
+          --replace '-march=native' "" \
+          --replace 'INCS =.*' 'INCS = $(shell pkg-config --cflags x11 xft xinerama xi)' \
+          --replace 'LIBS =.*' 'LIBS = $(shell pkg-config --libs x11 xft xinerama xi xrender fontconfig imlib2)' \
+          --replace 'CFLAGS   =.*' 'CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations $(INCS) $(CPPFLAGS)' \
+          --replace 'LDFLAGS  =.*' 'LDFLAGS = $(LIBS)'
       '';
 
       installPhase = ''
@@ -40,7 +42,7 @@ let
 
       meta = with nixpkgs.lib; {
         description = "Builds ${app}";
-        license = licenses.gpl3Plus;
+        license = licenses.mit;
         platforms = platforms.unix;
       };
     };
