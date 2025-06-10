@@ -19,9 +19,9 @@ let
         nixpkgs.xorg.libXinerama
         nixpkgs.xorg.libXft
         nixpkgs.xorg.libXi
+        nixpkgs.xorg.libXrender
         nixpkgs.fontconfig
         nixpkgs.imlib2
-        nixpkgs.libXrender
       ];
 
       patchPhase = ''
