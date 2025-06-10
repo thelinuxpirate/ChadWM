@@ -13,12 +13,39 @@
 - dmenu
 
 ** Install
+*** Any Distro
 #+begin_src sh
 git clone https://github.com/thelinuxpirate/ChadWM ~/.config/chadwm
 cd ~/.config/chadwm/chadwm
 sudo make clean install
 #+end_src
 (Note: chmod +x all of the scripts)
+
+** NixOS
+Ive added a ~flake.nix~ to this repository enabling the use of a NixOS module.
+For its usage follow the steps below:
+#+begin_src nix
+# In your flake.nix add this in the 'inputs' section:
+chadwm.url = "github:thelinuxpirate/ChadWM";
+
+# Now in your configuration.nix you can add these lines:
+services.xserver.windowManager.dwm = {
+  enable = true;
+    package = pkgs.dwm.overrideAttrs (oldAttrs: rec {
+      pname = "chadwm";
+      version = "6.5";
+      src = pkgs.fetchFromGitHub {
+        owner = "thelinuxpirate";
+        repo = "ChadWM";
+        rev = "main";
+        sha256 = "<SHA256_HERE>"; # use nix-prefetch-git to get the sha256
+      };
+      nativeBuildInputs = oldAttrs.nativeBuildInputs or [] ++ [ pkgs.imlib2 ];
+    });
+  };
+
+chadwm.enableDmenu = true;
+#+end_src 
 
 ** Original Patches
 - barpadding 
