@@ -16,6 +16,7 @@ let
       buildInputs = [
         nixpkgs.xorg.libX11
         nixpkgs.xorg.libXft
+        nixpkgs.xorg.libXi
         nixpkgs.xorg.libXinerama
         nixpkgs.xorg.xrdb
         nixpkgs.alsa-lib
