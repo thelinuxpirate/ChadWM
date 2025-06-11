@@ -31,7 +31,7 @@ let
           --replace '/usr/X11R6/lib' "" \
           --replace '/usr/include/freetype2' "" \
           --replace '-march=native' "" \
-          --replace 'INCS =.*' 'INCS = $(shell pkg-config --cflags x11 xft xinerama xi) -I${nixpkgs.xorg.xorgproto.dev}/include' \
+          --replace 'INCS =.*' 'INCS = $(shell pkg-config --cflags x11 xft xinerama xi) -I${nixpkgs.xorg.xorgproto}/include' \
           --replace 'LIBS =.*' 'LIBS = $(shell pkg-config --libs x11 xft xinerama xi xrender fontconfig imlib2)' \
           --replace 'CFLAGS   =.*' 'CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations $(INCS) $(CPPFLAGS)' \
           --replace 'LDFLAGS  =.*' 'LDFLAGS = $(LIBS)'
