@@ -10,8 +10,6 @@ let
 
       nativeBuildInputs = [
         nixpkgs.pkg-config
-        nixpkgs.patchelf
-        nixpkgs.autoPatchelfHook
       ];
 
       buildInputs = [
@@ -19,13 +17,27 @@ let
         nixpkgs.xorg.libXinerama
         nixpkgs.xorg.libXft
         nixpkgs.xorg.libXi
+        nixpkgs.xorg.libXext
         nixpkgs.xorg.xorgproto
         nixpkgs.xorg.libXrender
-        nixpkgs.xorg.libXext
         nixpkgs.fontconfig
         nixpkgs.imlib2
         nixpkgs.freetype
       ];
+
+      prePatch = ''
+        export PKG_CONFIG_PATH=${nixpkgs.lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
+          nixpkgs.xorg.libX11
+          nixpkgs.xorg.libXinerama
+          nixpkgs.xorg.libXft
+          nixpkgs.xorg.libXi
+          nixpkgs.xorg.libXext
+          nixpkgs.xorg.libXrender
+          nixpkgs.fontconfig
+          nixpkgs.imlib2
+          nixpkgs.freetype
+        ]}
+      '';
 
       patchPhase = ''
         substituteInPlace config.mk \
@@ -33,8 +45,8 @@ let
           --replace '/usr/X11R6/lib' "" \
           --replace '/usr/include/freetype2' "" \
           --replace '-march=native' "" \
-          --replace 'INCS =.*' 'INCS = $(shell pkg-config --cflags x11 xft xinerama xi xrender fontconfig imlib2)' \
-          --replace 'LIBS =.*' 'LIBS = $(shell pkg-config --libs x11 xft xinerama xi xrender fontconfig imlib2)' \
+          --replace 'INCS =.*' 'INCS = $(shell pkg-config --cflags x11 xft xinerama xi xext xrender fontconfig imlib2)' \
+          --replace 'LIBS =.*' 'LIBS = $(shell pkg-config --libs x11 xft xinerama xi xext xrender fontconfig imlib2)' \
           --replace 'CFLAGS   =.*' 'CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations $(INCS) $(CPPFLAGS)' \
           --replace 'LDFLAGS  =.*' 'LDFLAGS = $(LIBS)'
       '';
