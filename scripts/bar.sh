@@ -3,20 +3,29 @@
 # ^c$var^ = fg color
 # ^b$var^ = bg color
 
+# Variables:
 interval=0
+# TokyoNight ColorScheme:
+black=#1a1b26
+green=#9ece6a
+white=#a9b1d6
+purple=#9d7cd8
+grey=#24283b
+blue=#7aa2f7
+red=#f7768e
+orange=#ff9e64
+darkblue=$blue
 
-# load colors
-. ~/.config/chadwm/scripts/bar_themes/tokyonight
+audio() {
+  muted=$(pamixer --get-mute 2>/dev/null)
+  volume=$(pamixer --get-volume-human 2>/dev/null)
 
-pkg_updates() {
-  #updates=$({ timeout 20 doas xbps-install -un 2>/dev/null || true; } | wc -l) # void
-  updates=$({ timeout 20 checkupdates 2>/dev/null || true; } | wc -l) # arch
-  # updates=$({ timeout 20 aptitude search '~U' 2>/dev/null || true; } | wc -l)  # apt (ubuntu, debian etc)
-
-  if [ -z "$updates" ]; then
-    printf "  ^c$white^    Fully Updated"
+  if [ "$muted" = "true" ]; then
+    printf "^c$black^ ^b$red^ "
+    echo   "^c$white^ ^b$grey^ MUTED"
   else
-    printf "  ^c$white^    $updates"" updates"
+    printf "^c$black^ ^b$purple^ "
+    echo   "^c$white^ ^b$grey^ $(echo "$volume" | sed 's/%/%/')"
   fi
 }
 
@@ -28,26 +37,24 @@ cpu() {
 }
 
 mem() {
-  printf "^c$black^^b$red^  "
+  printf "^c$black^ ^b$red^  "
   printf "^c$white^^b$grey^ $(free -h | awk '/^Mem/ { print $3 }' | sed s/i//g)"
 }
 
 wlan() {
   case "$(cat /sys/class/net/wl*/operstate 2>/dev/null)" in
-  up) printf "^c$black^ ^b$orange^ 󰤨 ^d^%s" "^c$white^^b$grey^ Connected" ;;
-  down) printf "^c$black^ ^b$red^ 󰤭 ^d^%s" "^c$grey^^b$grey^ Disconnected" ;;
+  up) printf   "^c$black^ ^b$orange^ 󰤨 ^d^%s" "^c$white^^b$grey^ Connected" ;;
+  down) printf "^c$black^ ^b$red^ 󰤭 ^d^%s" "^c$white^^b$grey^ Disconnected" ;;
   esac
 }
 
 clock() {
-  printf "^c$black^ ^b$darkblue^ 󱑆 "
-  printf "^c$black^^b$blue^ $(date '+%H:%M')  "
+  printf "^c$black^^b$darkblue^ 󱑆 "
+  printf "^c$white^^b$grey^ $(date '+%I:%M %p') "
 }
 
 while true; do
-
-  [ $interval = 0 ] || [ $(($interval % 3600)) = 0 ] && updates=$(pkg_updates)
   interval=$((interval + 1))
-
-  sleep 1 && xsetroot -name "$updates $(cpu) $(mem) $(wlan) $(clock)"
+  sleep 1
+  xsetroot -name "$(audio) $(cpu) $(mem) $(wlan) $(clock)"
 done
