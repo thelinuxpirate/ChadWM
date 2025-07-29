@@ -262,7 +262,6 @@ static void cyclelayout(const Arg *arg);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
-static Monitor *dirtomon(int dir);
 static void dragmfact(const Arg *arg);
 static void dragcfact(const Arg *arg);
 static void drawbar(Monitor *m);
@@ -274,7 +273,6 @@ static void expose(XEvent *e);
 static Client *findbefore(Client *c);
 static void focus(Client *c);
 static void focusin(XEvent *e);
-static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static void focuswin(const Arg *arg);
 static void genericeventnotify(XEvent *e);
@@ -298,7 +296,6 @@ static void movemouse(const Arg *arg);
 static void moveorplace(const Arg *arg);
 static Client *nexttiled(Client *c);
 static void placemouse(const Arg *arg);
-static void pop(Client *c);
 static void propertynotify(XEvent *e);
 static void rawmotionnotify(XEvent *e);
 static Monitor *raycastx(Monitor *src, int y, int dx);
@@ -318,7 +315,6 @@ static void scan(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2,
                      long d3, long d4);
 static void sendmon(Client *c, Monitor *m);
-static void setborderpx(const Arg *arg);
 static void setclientstate(Client *c, long state);
 static void setclienttagprop(Client *c);
 static void setcurrentdesktop(void);
@@ -335,12 +331,10 @@ static void setviewport(void);
 static void seturgent(Client *c, int urg);
 static void show(Client *c);
 static void showhide(Client *c);
-static void showtagpreview(int tag);
 static void spawn(const Arg *arg);
 static void switchtag(void);
 static Monitor *systraytomon(Monitor *m);
 static void tag(const Arg *arg);
-static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
 static void togglefakefullscr(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -464,7 +458,6 @@ struct Monitor {
 
 #include "vanitygaps.c"
 #include "movestack.c"
-#include "shiftview.c"
 
 struct Pertag {
   unsigned int curtag, prevtag; /* current and previous tag */
@@ -1066,21 +1059,6 @@ void detachstack(Client *c) {
       ;
     c->mon->sel = t;
   }
-}
-
-Monitor *dirtomon(int dir) {
-  Monitor *m = NULL;
-
-  if (dir > 0) {
-    if (!(m = selmon->next))
-      m = mons;
-  } else if (selmon == mons)
-    for (m = mons; m->next; m = m->next)
-      ;
-  else
-    for (m = mons; m->next != selmon; m = m->next)
-      ;
-  return m;
 }
 
 int drawstatusbar(Monitor *m, int bh, char *stext) {
@@ -1805,18 +1783,6 @@ void focusin(XEvent *e) {
     setfocus(selmon->sel);
 }
 
-void focusmon(const Arg *arg) {
-  Monitor *m;
-
-  if (!mons->next)
-    return;
-  if ((m = dirtomon(arg->i)) == selmon)
-    return;
-  unfocus(selmon->sel, 0);
-  selmon = m;
-  focus(NULL);
-}
-
 void focusstack(const Arg *arg) {
   Client *c = NULL, *i;
 
@@ -2505,13 +2471,6 @@ placemouse(const Arg *arg)
   arrangemon(c->mon);
 }
 
-void pop(Client *c) {
-  detach(c);
-  attach(c);
-  focus(c);
-  arrange(c->mon);
-}
-
 void propertynotify(XEvent *e) {
   Client *c;
   Window trans;
@@ -2814,37 +2773,6 @@ void sendmon(Client *c, Monitor *m) {
   arrange(NULL);
 }
 
-void setborderpx(const Arg *arg) {
-  Client *c;
-  int prev_borderpx = selmon->borderpx;
-
-  if (arg->i == 0)
-    selmon->borderpx = borderpx;
-  else if (selmon->borderpx + arg->i < 0)
-    selmon->borderpx = 0;
-  else
-    selmon->borderpx += arg->i;
-
-  for (c = selmon->clients; c; c = c->next) {
-    if (c->bw + arg->i < 0)
-      c->bw = selmon->borderpx = 0;
-    else
-      c->bw = selmon->borderpx;
-    if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
-      if (arg->i != 0 && prev_borderpx + arg->i >= 0)
-        resize(c, c->x, c->y, c->w - (arg->i * 2), c->h - (arg->i * 2), 0);
-      else if (arg->i != 0)
-        resizeclient(c, c->x, c->y, c->w, c->h);
-      else if (prev_borderpx > borderpx)
-        resize(c, c->x, c->y, c->w + 2 * (prev_borderpx - borderpx),
-               c->h + 2 * (prev_borderpx - borderpx), 0);
-      else if (prev_borderpx < borderpx)
-        resize(c, c->x, c->y, c->w - 2 * (borderpx - prev_borderpx),
-               c->h - 2 * (borderpx - prev_borderpx), 0);
-    }
-  }
-  arrange(selmon);
-}
 
 void setclientstate(Client *c, long state) {
   long data[] = {state, None};
@@ -3168,24 +3096,6 @@ void showhide(Client *c) {
   }
 }
 
-void
-showtagpreview(int tag)
-{
-  if (!selmon->previewshow  || !tag_preview ) {
-    XUnmapWindow(dpy, selmon->tagwin);
-    return;
-  }
-
-        if (selmon->tagmap[tag]) {
-    XSetWindowBackgroundPixmap(dpy, selmon->tagwin, selmon->tagmap[tag]);
-    XCopyArea(dpy, selmon->tagmap[tag], selmon->tagwin, drw->gc, 0, 0, selmon->mw / scalepreview, selmon->mh / scalepreview, 0, 0);
-    XSync(dpy, False);
-    XMapWindow(dpy, selmon->tagwin);
-  } else
-    XUnmapWindow(dpy, selmon->tagwin);
-}
-
-
 void spawn(const Arg *arg) {
   struct sigaction sa;
   if (fork() == 0) {
@@ -3249,12 +3159,6 @@ void tag(const Arg *arg) {
     focus(NULL);
     arrange(selmon);
   }
-}
-
-void tagmon(const Arg *arg) {
-  if (!selmon->sel || !mons->next)
-    return;
-  sendmon(selmon->sel, dirtomon(arg->i));
 }
 
 void togglebar(const Arg *arg) {
