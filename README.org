@@ -3,9 +3,9 @@
 - dash (shell)
 - imlib2 
 - xsetroot package (status2d uses this to add colors on dwmbar)
-- ComicMono Font
-- Alacritty
-# WezTerm?
+- WezTerm
+- FiraCode Font
+
 **** Other requirements
 - picom
 - feh
